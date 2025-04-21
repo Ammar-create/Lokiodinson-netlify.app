@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movies & TV Shows Watchlist</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Fixed Navigation Bar -->
+        <nav class="top-nav">
+            <div class="nav-logo">
+                <img src="images/logo.png" alt="Logo" class="nav-logo-img">
+                <h1>Movies & TV Shows Watchlist</h1>
+            </div>
+            <div class="nav-links">
+                <a href="#watchlist" class="nav-link active">Watchlist</a>
+                <a href="#add-category" class="nav-link">Add Category</a>
+                <a href="#add-entry" class="nav-link">Add Entry</a>
+                <a href="#view-watchlist" class="nav-link">View Watchlist</a>
+            </div>
+            <div class="theme-toggle">
+                <button id="theme-toggle-btn" class="btn-theme"><i class="fas fa-moon"></i> Toggle Theme</button>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <!-- Hero Section for View Watchlist -->
+            <section id="hero-section" class="hero-section"></section>
+
+            <div id="success-message" class="success-message" style="display: none;"></div>
+
+            <section id="watchlist" class="content-section active">
+                <div class="card">
+                    <h2>Welcome to Your Watchlist</h2>
+                    <p>Use the navigation bar to add categories, entries, or view your watchlist.</p>
+                </div>
+            </section>
+
+            <section id="add-category" class="content-section">
+                <div class="card">
+                    <h2>Add a New Category</h2>
+                    <form id="category-form" class="form">
+                        <div class="form-group">
+                            <label for="new-category">Category Name</label>
+                            <input type="text" id="new-category" placeholder="e.g., Sci-Fi Movies" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Category</button>
+                    </form>
+                </div>
+            </section>
+
+            <section id="add-entry" class="content-section">
+                <div class="card">
+                    <h2>Add a New Entry</h2>
+                    <form id="watchlist-form" class="form">
+                        <div class="form-group">
+                            <label for="category">Category</label>
+                            <select id="category" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="title">Title</label>
+                            <input type="text" id="title" placeholder="e.g., Breaking Bad" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="seasons">Seasons</label>
+                            <input type="text" id="seasons" placeholder="e.g., 5 or - for movies">
+                        </div>
+                        <div class="form-group">
+                            <label for="episodes">Episodes</label>
+                            <input type="text" id="episodes" placeholder="e.g., 62 or 1 Movie">
+                        </div>
+                        <div class="form-group">
+                            <label for="totalWatchTime">Total Watch Time</label>
+                            <input type="text" id="totalWatchTime" placeholder="e.g., ~62 hours">
+                        </div>
+                        <div class="form-group">
+                            <label for="imdbLink">IMDb Link (Optional)</label>
+                            <input type="url" id="imdbLink" placeholder="e.g., https://www.imdb.com/title/...">
+                        </div>
+                        <div class="form-group">
+                            <label for="notes">Notes (Optional)</label>
+                            <textarea id="notes" placeholder="e.g., Really intense show!"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Entry</button>
+                    </form>
+                </div>
+            </section>
+
+            <section id="view-watchlist" class="content-section">
+                <div class="category-grid" id="categories-container"></div>
+            </section>
+        </main>
+    </div>
+
+    <footer class="footer">
+        <p>Last Updated: <span id="last-updated"></span></p>
+    </footer>
+
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">×</span>
+            <h2>Edit Entry</h2>
+            <form id="edit-form" class="form">
+                <input type="hidden" id="edit-category">
+                <input type="hidden" id="edit-index">
+                <div class="form-group">
+                    <label for="edit-title">Title</label>
+                    <input type="text" id="edit-title" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-seasons">Seasons</label>
+                    <input type="text" id="edit-seasons">
+                </div>
+                <div class="form-group">
+                    <label for="edit-episodes">Episodes</label>
+                    <input type="text" id="edit-episodes">
+                </div>
+                <div class="form-group">
+                    <label for="edit-totalWatchTime">Total Watch Time</label>
+                    <input type="text" id="edit-totalWatchTime">
+                </div>
+                <div class="form-group">
+                    <label for="edit-imdbLink">IMDb Link (Optional)</label>
+                    <input type="url" id="edit-imdbLink">
+                </div>
+                <div class="form-group">
+                    <label for="edit-notes">Notes (Optional)</label>
+                    <textarea id="edit-notes"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
