@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AI Image Studio · Pollinations.ai</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0a0a0a; --surface: #111; --card: #161616;
+    --border: #222; --accent: #e8ff47; --accent2: #ff6b35;
+    --text: #f0f0f0; --muted: #555; --dim: #2a2a2a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'Inter', sans-serif; font-weight: 300;
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; padding: 48px 20px 64px;
+  }
+  header { text-align: center; margin-bottom: 40px; animation: fadeUp 0.5s ease both; }
+  .eyebrow { font-size: 10px; letter-spacing: 6px; color: var(--muted); text-transform: uppercase; margin-bottom: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .pill { background: var(--accent); color: #000; font-size: 9px; font-weight: 600; letter-spacing: 2px; padding: 2px 8px; border-radius: 20px; text-transform: uppercase; }
+  h1 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: clamp(34px, 6vw, 60px); line-height: 1.05; letter-spacing: -1px; }
+  h1 span { color: var(--accent); }
+  .subtitle { font-size: 13px; color: var(--muted); margin-top: 10px; letter-spacing: 1px; }
+  .wrap { width: 100%; max-width: 860px; display: flex; flex-direction: column; gap: 12px; }
+
+  /* Key banner */
+  .key-banner { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 20px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; animation: fadeUp 0.5s 0.05s ease both; }
+  .key-banner-left { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 160px; }
+  .key-banner-title { font-size: 11px; color: var(--accent); letter-spacing: 1px; font-weight: 500; }
+  .key-banner-sub { font-size: 11px; color: var(--muted); }
+  .key-input { flex: 1; min-width: 200px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; color: var(--text); font-family: 'Inter', sans-serif; font-size: 12px; outline: none; transition: border-color 0.2s; }
+  .key-input:focus { border-color: #333; }
+  .key-input::placeholder { color: var(--muted); }
+  .key-status { font-size: 10px; white-space: nowrap; padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border); letter-spacing: 1px; }
+  .key-status.default { color: var(--muted); }
+  .key-status.custom { color: #6abf69; border-color: #1e3d1e; background: rgba(100,180,80,0.07); }
+
+  /* Card */
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.6); animation: fadeUp 0.5s 0.1s ease both; }
+  .prompt-section { padding: 22px 24px 0; }
+  .section-label { font-size: 9px; letter-spacing: 4px; color: var(--muted); text-transform: uppercase; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+  .char-count { color: var(--dim); }
+
+  textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; outline: none; resize: none; padding: 14px 16px; color: var(--text); font-family: 'Inter', sans-serif; font-size: 14px; line-height: 1.6; font-weight: 300; transition: border-color 0.2s; min-height: 90px; }
+  textarea:focus { border-color: #2e2e2e; }
+  textarea::placeholder { color: var(--muted); }
+
+  /* Enhance */
+  .enhance-row { display: flex; gap: 8px; align-items: center; margin-top: 10px; flex-wrap: wrap; }
+  .enhance-btn { background: rgba(232,255,71,0.08); border: 1px solid rgba(232,255,71,0.2); border-radius: 8px; padding: 8px 18px; color: var(--accent); font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s; letter-spacing: 0.5px; }
+  .enhance-btn:hover { background: rgba(232,255,71,0.14); border-color: rgba(232,255,71,0.35); }
+  .enhance-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .mode-btn { padding: 6px 13px; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--muted); font-family: 'Inter', sans-serif; font-size: 11px; cursor: pointer; transition: all 0.15s; }
+  .mode-btn:hover { border-color: #333; color: #888; }
+  .mode-btn.active { border-color: rgba(232,255,71,0.4); background: rgba(232,255,71,0.07); color: var(--accent); }
+
+  /* Enhanced box */
+  .enhanced-box { margin-top: 10px; background: #0f0f0f; border: 1px solid #1a1a1a; border-radius: 10px; padding: 14px 16px; transition: border-color 0.2s; }
+  .enhanced-box.has-content { border-color: rgba(232,255,71,0.15); }
+  .enhanced-label { font-size: 9px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+  .dot-accent { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); opacity: 0.6; }
+  .enhanced-text { font-size: 13px; line-height: 1.6; color: #aaa; white-space: pre-wrap; word-break: break-word; font-style: italic; min-height: 40px; }
+  .enhanced-text.placeholder-text { color: var(--dim); }
+  .enhanced-edit { width: 100%; background: transparent; border: none; outline: none; resize: none; color: #aaa; font-family: 'Inter', sans-serif; font-size: 13px; line-height: 1.6; min-height: 60px; display: none; font-style: italic; }
+
+  /* Settings */
+  .settings-section { padding: 16px 24px 0; display: flex; gap: 12px; flex-wrap: wrap; }
+  .setting-group { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 120px; }
+  .setting-label { font-size: 9px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; }
+  .setting-select { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 8px 28px 8px 12px; color: var(--text); font-family: 'Inter', sans-serif; font-size: 12px; outline: none; cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23444'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
+
+  .neg-section { padding: 12px 24px 0; }
+  .neg-input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 9px 14px; color: #888; font-family: 'Inter', sans-serif; font-size: 12px; outline: none; }
+  .neg-input::placeholder { color: var(--dim); }
+
+  .seed-section { padding: 10px 24px 0; display: flex; gap: 10px; align-items: center; }
+  .seed-label { font-size: 9px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; }
+  .seed-input { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; color: var(--text); font-family: 'Inter', sans-serif; font-size: 12px; outline: none; width: 130px; }
+  .seed-input::placeholder { color: var(--dim); }
+  .seed-random { background: transparent; border: 1px solid var(--border); border-radius: 8px; padding: 7px 12px; color: var(--muted); font-family: 'Inter', sans-serif; font-size: 11px; cursor: pointer; transition: all 0.15s; }
+  .seed-random:hover { border-color: #333; color: #888; }
+
+  /* Action bar */
+  .action-bar { margin-top: 16px; padding: 16px 24px; border-top: 1px solid var(--border); background: #0f0f0f; display: flex; align-items: center; gap: 12px; }
+  .error-msg { color: #e06060; font-size: 12px; flex: 1; }
+  .spacer { flex: 1; }
+  .gen-btn { background: var(--accent); border: none; border-radius: 10px; padding: 13px 40px; color: #000; font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; letter-spacing: 0.5px; transition: opacity 0.2s, transform 0.15s; box-shadow: 0 4px 24px rgba(232,255,71,0.2); }
+  .gen-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+  .gen-btn:active { transform: translateY(0); }
+  .gen-btn:disabled { background: var(--dim); color: var(--muted); cursor: not-allowed; box-shadow: none; transform: none; }
+
+  /* Loading */
+  .loading-card { display: none; background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 48px 24px; flex-direction: column; align-items: center; gap: 16px; }
+  .loading-ring { width: 48px; height: 48px; border-radius: 50%; border: 2px solid var(--border); border-top-color: var(--accent); animation: spin 0.9s linear infinite; }
+  .loading-label { font-size: 11px; color: var(--muted); letter-spacing: 3px; text-transform: uppercase; }
+  .loading-step { font-size: 12px; color: #444; text-align: center; max-width: 300px; }
+
+  /* Result */
+  .result-card { display: none; background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; animation: fadeUp 0.4s ease both; }
+  .result-img { width: 100%; display: block; object-fit: contain; background: #0a0a0a; max-height: 640px; }
+  .result-bar { padding: 16px 22px; border-top: 1px solid var(--border); background: #0f0f0f; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .result-meta { flex: 1; }
+  .result-model { font-size: 11px; color: var(--accent); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+  .result-prompt-preview { font-size: 11px; color: var(--muted); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 400px; }
+  .dl-btn { background: transparent; border: 1px solid var(--border); border-radius: 8px; padding: 9px 18px; color: var(--muted); font-family: 'Inter', sans-serif; font-size: 12px; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+  .dl-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .regen-btn { background: rgba(232,255,71,0.07); border: 1px solid rgba(232,255,71,0.2); border-radius: 8px; padding: 9px 18px; color: var(--accent); font-family: 'Inter', sans-serif; font-size: 12px; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+  .regen-btn:hover { background: rgba(232,255,71,0.13); }
+
+  /* History */
+  .history-strip { display: none; flex-direction: column; gap: 10px; animation: fadeUp 0.4s ease both; }
+  .history-label { font-size: 9px; letter-spacing: 4px; color: var(--muted); text-transform: uppercase; padding: 0 2px; }
+  .history-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .history-thumb { aspect-ratio: 1; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); cursor: pointer; transition: border-color 0.2s; background: var(--dim); }
+  .history-thumb:hover { border-color: var(--accent); }
+  .history-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  footer { margin-top: 28px; font-size: 10px; color: var(--dim); letter-spacing: 3px; text-transform: uppercase; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow"><span class="pill">zimage</span> Powered by Pollinations.ai</div>
+  <h1>AI Image <span>Studio</span></h1>
+  <p class="subtitle">Gemini-enhanced prompts · zimage generation · instant results</p>
+</header>
+
+<div class="wrap">
+
+  <div class="key-banner">
+    <div class="key-banner-left">
+      <span class="key-banner-title">Better Rate Limits?</span>
+      <span class="key-banner-sub">Enter your own Pollinations publishable key for personal quota</span>
+    </div>
+    <input class="key-input" id="customKey" type="text" placeholder="pk_your_publishable_key_here..." autocomplete="off" oninput="onKeyInput()"/>
+    <span class="key-status default" id="keyStatus">Using default key</span>
+  </div>
+
+  <div class="card">
+    <div class="prompt-section">
+      <div class="section-label">
+        <span>Your Prompt</span>
+        <span class="char-count" id="charCount">0 chars</span>
+      </div>
+      <textarea id="promptInput" rows="3" maxlength="800" placeholder="Describe the image you want to create..."></textarea>
+
+      <div class="enhance-row">
+        <button class="enhance-btn" id="enhanceBtn" onclick="enhancePrompt()">&#10024; Enhance Prompt</button>
+        <button class="mode-btn active" data-mode="cinematic" onclick="setMode(this)">Cinematic</button>
+        <button class="mode-btn" data-mode="detailed" onclick="setMode(this)">Detailed</button>
+        <button class="mode-btn" data-mode="artistic" onclick="setMode(this)">Artistic</button>
+        <button class="mode-btn" data-mode="photorealistic" onclick="setMode(this)">Photorealistic</button>
+        <button class="mode-btn" data-mode="minimal" onclick="setMode(this)">Minimal</button>
+      </div>
+
+      <div class="enhanced-box" id="enhancedBox" style="margin-bottom: 16px;">
+        <div class="enhanced-label"><span class="dot-accent"></span> Enhanced Prompt <span style="color:#2a2a2a; font-size:10px; margin-left:auto;">Gemini 2.5 Flash-Lite</span></div>
+        <div class="enhanced-text placeholder-text" id="enhancedDisplay">Click "Enhance Prompt" to let Gemini rewrite your prompt for better results...</div>
+        <textarea class="enhanced-edit" id="enhancedEdit" rows="3"></textarea>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="setting-group">
+        <span class="setting-label">Aspect Ratio</span>
+        <select class="setting-select" id="aspectRatio">
+          <option value="1:1">Square (1:1)</option>
+          <option value="16:9">Landscape (16:9)</option>
+          <option value="9:16">Portrait (9:16)</option>
+          <option value="4:3">Standard (4:3)</option>
+          <option value="3:2">Photo (3:2)</option>
+          <option value="21:9">Ultrawide (21:9)</option>
+        </select>
+      </div>
+      <div class="setting-group">
+        <span class="setting-label">Resolution</span>
+        <select class="setting-select" id="resolution">
+          <option value="768">768px</option>
+          <option value="1024" selected>1024px</option>
+          <option value="1280">1280px</option>
+        </select>
+      </div>
+      <div class="setting-group" style="flex:2;">
+        <span class="setting-label">Negative Prompt</span>
+        <input class="neg-input" id="negPrompt" type="text" placeholder="blur, watermark, low quality..."/>
+      </div>
+    </div>
+
+    <div class="seed-section">
+      <span class="seed-label">Seed</span>
+      <input class="seed-input" id="seedInput" type="number" placeholder="Random"/>
+      <button class="seed-random" onclick="randomSeed()">&#9684; Random</button>
+    </div>
+
+    <div class="action-bar">
+      <span class="error-msg" id="errorMsg"></span>
+      <span class="spacer"></span>
+      <button class="gen-btn" id="genBtn" onclick="generate()">Generate Image</button>
+    </div>
+  </div>
+
+  <div class="loading-card" id="loadingCard">
+    <div class="loading-ring"></div>
+    <span class="loading-label">Generating</span>
+    <span class="loading-step" id="loadingStep">Sending to zimage...</span>
+  </div>
+
+  <div class="result-card" id="resultCard">
+    <img class="result-img" id="resultImg" src="" alt="Generated image"/>
+    <div class="result-bar">
+      <div class="result-meta">
+        <div class="result-model">zimage · Pollinations.ai</div>
+        <div class="result-prompt-preview" id="resultPromptPreview"></div>
+      </div>
+      <button class="regen-btn" onclick="generate()">Regenerate</button>
+      <button class="dl-btn" onclick="downloadImage()">Download</button>
+    </div>
+  </div>
+
+  <div class="history-strip" id="historyStrip">
+    <span class="history-label">Recent generations</span>
+    <div class="history-grid" id="historyGrid"></div>
+  </div>
+
+</div>
+
+<footer>AI Image Studio · zimage · Pollinations.ai</footer>
+
+<script>
+  const DEFAULT_KEY = "pk_LUy70Tu8OwLI1HrU";
+  let enhanceMode = "cinematic";
+  let lastImageUrl = null;
+  let isEditing = false;
+  const historyItems = [];
+
+  const ENHANCE_PROMPTS = {
+    cinematic: "You are a professional AI image prompt engineer. Take the user's prompt and rewrite it into a rich, detailed cinematic image prompt. Add dramatic lighting, camera angle, mood, atmosphere, color palette. Output ONLY the enhanced prompt. No explanations. Max 180 words.",
+    detailed:  "You are an expert AI image prompt engineer. Expand the user's prompt with rich visual details: textures, materials, lighting, background elements, depth of field. Output ONLY the enhanced prompt. No explanations. Max 180 words.",
+    artistic:  "You are an AI art director. Transform the user's prompt into a detailed artistic image prompt. Add art style, artist influences, color theory, composition, brushwork. Output ONLY the enhanced prompt. No explanations. Max 180 words.",
+    photorealistic: "You are a photography expert for AI image generation. Rewrite the user's prompt for maximum photorealism: camera specs, lens, aperture, lighting setup, time of day, RAW photo style. Output ONLY the enhanced prompt. No preamble. Max 180 words.",
+    minimal:   "You are a minimalist AI prompt engineer. Rewrite the user's prompt with clean, precise minimal language: simple composition, negative space, limited color palette. Output ONLY the enhanced prompt. Be concise. Max 80 words."
+  };
+
+  function getActiveKey() {
+    return document.getElementById("customKey").value.trim() || DEFAULT_KEY;
+  }
+
+  function onKeyInput() {
+    const val = document.getElementById("customKey").value.trim();
+    const s = document.getElementById("keyStatus");
+    s.textContent = val ? "Using your key" : "Using default key";
+    s.className = "key-status " + (val ? "custom" : "default");
+  }
+
+  function setMode(el) {
+    document.querySelectorAll(".mode-btn").forEach(b => b.classList.remove("active"));
+    el.classList.add("active");
+    enhanceMode = el.dataset.mode;
+  }
+
+  document.getElementById("promptInput").addEventListener("input", function() {
+    document.getElementById("charCount").textContent = this.value.length + " chars";
+  });
+
+  document.getElementById("enhancedBox").addEventListener("click", function() {
+    const display = document.getElementById("enhancedDisplay");
+    const edit = document.getElementById("enhancedEdit");
+    if (display.classList.contains("placeholder-text")) return;
+    if (!isEditing) {
+      display.style.display = "none";
+      edit.style.display = "block";
+      edit.value = display.textContent;
+      edit.focus();
+      isEditing = true;
+    }
+  });
+
+  document.getElementById("enhancedEdit").addEventListener("blur", function() {
+    const display = document.getElementById("enhancedDisplay");
+    display.textContent = this.value;
+    display.style.display = "block";
+    this.style.display = "none";
+    isEditing = false;
+  });
+
+  function getFinalPrompt() {
+    const edit = document.getElementById("enhancedEdit");
+    const display = document.getElementById("enhancedDisplay");
+    if (isEditing) return edit.value.trim();
+    if (!display.classList.contains("placeholder-text")) return display.textContent.trim();
+    return document.getElementById("promptInput").value.trim();
+  }
+
+  async function enhancePrompt() {
+    const raw = document.getElementById("promptInput").value.trim();
+    const errorEl = document.getElementById("errorMsg");
+    errorEl.textContent = "";
+    if (!raw) { errorEl.textContent = "Please write a prompt first."; return; }
+
+    const btn = document.getElementById("enhanceBtn");
+    btn.disabled = true;
+    btn.textContent = "Enhancing...";
+
+    try {
+      const res = await fetch("https://gen.pollinations.ai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + getActiveKey()
+        },
+        body: JSON.stringify({
+          model: "gemini-2.5-flash-lite",
+          messages: [
+            { role: "system", content: ENHANCE_PROMPTS[enhanceMode] },
+            { role: "user", content: raw }
+          ]
+        })
+      });
+
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        throw new Error((j?.error?.message || "Error " + res.status));
+      }
+
+      const data = await res.json();
+      const enhanced = data?.choices?.[0]?.message?.content?.trim();
+      if (!enhanced) throw new Error("Empty response");
+
+      const display = document.getElementById("enhancedDisplay");
+      display.textContent = enhanced;
+      display.classList.remove("placeholder-text");
+      display.style.display = "block";
+      document.getElementById("enhancedEdit").style.display = "none";
+      document.getElementById("enhancedEdit").value = enhanced;
+      document.getElementById("enhancedBox").classList.add("has-content");
+      isEditing = false;
+
+    } catch(e) {
+      errorEl.textContent = "Enhance failed: " + e.message;
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "✨ Enhance Prompt";
+    }
+  }
+
+  function getDimensions() {
+    const base = parseInt(document.getElementById("resolution").value);
+    const ratio = document.getElementById("aspectRatio").value;
+    const map = { "1:1":[1,1], "16:9":[16,9], "9:16":[9,16], "4:3":[4,3], "3:2":[3,2], "21:9":[21,9] };
+    const [rw, rh] = map[ratio] || [1,1];
+    const scale = base / Math.sqrt(rw * rh);
+    return { w: Math.round(rw * scale / 64) * 64, h: Math.round(rh * scale / 64) * 64 };
+  }
+
+  function randomSeed() {
+    document.getElementById("seedInput").value = Math.floor(Math.random() * 999999);
+  }
+
+  async function generate() {
+    const finalPrompt = getFinalPrompt();
+    const negPrompt   = document.getElementById("negPrompt").value.trim();
+    const seed        = document.getElementById("seedInput").value.trim();
+    const errorEl     = document.getElementById("errorMsg");
+    errorEl.textContent = "";
+
+    if (!finalPrompt) { errorEl.textContent = "Please enter a prompt first."; return; }
+
+    const { w, h } = getDimensions();
+    setLoading(true, "Sending to zimage...");
+
+    try {
+      // Build URL — NO key in query params, use Authorization header via fetch
+      let imgUrl = `https://gen.pollinations.ai/image/${encodeURIComponent(finalPrompt)}?model=zimage&width=${w}&height=${h}&nologo=true&private=true`;
+      if (seed)      imgUrl += `&seed=${seed}`;
+      if (negPrompt) imgUrl += `&negative=${encodeURIComponent(negPrompt)}`;
+
+      // Fetch as blob using Authorization header
+      const res = await fetch(imgUrl, {
+        headers: { "Authorization": "Bearer " + getActiveKey() }
+      });
+
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        throw new Error(j?.error?.message || "API error " + res.status);
+      }
+
+      const blob = await res.blob();
+      const objectUrl = URL.createObjectURL(blob);
+
+      lastImageUrl = objectUrl;
+      const resultImg = document.getElementById("resultImg");
+      resultImg.src = objectUrl;
+      document.getElementById("resultPromptPreview").textContent = finalPrompt;
+      showResult(true);
+      addToHistory(objectUrl, finalPrompt);
+
+    } catch(e) {
+      console.error(e);
+      errorEl.textContent = e.message || "Generation failed. Please try again.";
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function setLoading(on, msg) {
+    document.getElementById("genBtn").disabled = on;
+    document.getElementById("enhanceBtn").disabled = on;
+    const lc = document.getElementById("loadingCard");
+    lc.style.display = on ? "flex" : "none";
+    if (msg) document.getElementById("loadingStep").textContent = msg;
+    if (on) showResult(false);
+  }
+
+  function showResult(show) {
+    document.getElementById("resultCard").style.display = show ? "block" : "none";
+  }
+
+  function addToHistory(url, prompt) {
+    historyItems.unshift({ url, prompt });
+    if (historyItems.length > 4) historyItems.pop();
+    const grid = document.getElementById("historyGrid");
+    grid.innerHTML = "";
+    historyItems.forEach(item => {
+      const div = document.createElement("div");
+      div.className = "history-thumb";
+      div.title = item.prompt;
+      const img = document.createElement("img");
+      img.src = item.url;
+      img.alt = item.prompt;
+      div.appendChild(img);
+      div.onclick = () => {
+        document.getElementById("resultImg").src = item.url;
+        lastImageUrl = item.url;
+        document.getElementById("resultPromptPreview").textContent = item.prompt;
+        showResult(true);
+      };
+      grid.appendChild(div);
+    });
+    document.getElementById("historyStrip").style.display = "flex";
+  }
+
+  function downloadImage() {
+    if (!lastImageUrl) return;
+    const a = document.createElement("a");
+    a.href = lastImageUrl;
+    a.download = "zimage-" + Date.now() + ".jpg";
+    a.click();
+  }
+</script>
+</body>
+</html>
